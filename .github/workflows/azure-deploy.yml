@@ -1,0 +1,38 @@
+name: Deploy to Azure Web App
+
+on:
+  push:
+    branches:
+      - work_koma  # デプロイしたいブランチ名に変更
+  workflow_dispatch:  # 手動実行も可能にする
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Node.js の例（他の言語は後述）
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'  # 使用するバージョン
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build application
+        run: npm run build --if-present  # ビルドが不要なら削除
+
+      # テストがある場合
+      # - name: Run tests
+      #   run: npm test
+
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: 'koma-front'  # Azure Web Appの名前
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: .  # デプロイするディレクトリ（ビルド成果物がある場合は ./dist など）
