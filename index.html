@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>業務情報検索アプリケーション</title>
+    <!-- Tailwind CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f0f2f5;
+        }
+        .source-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .source-outlook {
+            background-color: #0078d4;
+            color: white;
+        }
+        .source-teams {
+            background-color: #6264a7;
+            color: white;
+        }
+    </style>
+</head>
+<body class="font-sans antialiased text-gray-800">
+    <!-- ヘッダー -->
+    <header class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex justify-between items-center">
+                <h1 class="text-2xl font-bold text-gray-900">業務情報検索</h1>
+                
+                <!-- 検索欄とボタンエリア -->
+                <div class="flex items-center space-x-4">
+                    <form class="relative" onsubmit="handleSearch(event)">
+                        <input id="search" name="search" type="text" autocomplete="off" required
+                            placeholder="キーワードを入力..."
+                            class="w-80 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                        <div id="search-history" class="absolute z-10 w-full bg-white border border-gray-200 rounded-md mt-1 shadow-lg hidden">
+                            <!-- 検索履歴がここに追加されます -->
+                        </div>
+                    </form>
+                    
+                    <button onclick="location.href='upload.html'"
+                        class="px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 whitespace-nowrap">
+                        ファイルアップロード
+                    </button>
+                    
+                    <!-- ホームボタン -->
+                    <button onclick="goHome()" title="ホームに戻る"
+                        class="p-2 border border-gray-300 rounded-lg shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- メインコンテンツ -->
+    <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- 初期状態のメッセージ -->
+        <div id="initial-message" class="text-center py-20">
+            <svg class="mx-auto h-24 w-24 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+            <h2 class="mt-6 text-xl font-semibold text-gray-700">キーワードを入力して検索してください</h2>
+            <p class="mt-2 text-gray-500">Outlook、Teams などの業務情報を横断検索できます</p>
+        </div>
+
+        <!-- 検索結果エリア -->
+        <div id="search-results" class="hidden">
+            <div class="mb-6">
+                <h2 class="text-lg font-semibold text-gray-900">検索結果 <span id="result-count" class="text-indigo-600"></span></h2>
+            </div>
+
+            <div class="space-y-4">
+                <!-- 検索結果カード1 -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-3 mb-3">
+                                <span class="source-badge source-outlook">Outlook</span>
+                                <span class="text-sm text-gray-500">2024/10/31</span>
+                            </div>
+                            <h3 class="text-lg font-semibold text-gray-900 mb-2">ハッカソンキックオフのご案内</h3>
+                            <p class="text-gray-600 mb-3">来週から始まるハッカソンのキックオフミーティングについてのご案内です。プロジェクトの概要と参加者の役割分担について説明します。</p>
+                            <div class="flex items-center text-sm text-gray-500">
+                                <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                </svg>
+                                <span>後藤進太郎</span>
+                            </div>
+                        </div>
+                        <button class="ml-4 text-indigo-600 hover:text-indigo-800 font-medium text-sm whitespace-nowrap">
+                            詳細を見る →
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 検索結果カード2 -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-3 mb-3">
+                                <span class="source-badge source-teams">Teams</span>
+                                <span class="text-sm text-gray-500">2024/9/26</span>
+                            </div>
+                            <h3 class="text-lg font-semibold text-gray-900 mb-2">ハッカソン　アイデア大募集！！</h3>
+                            <p class="text-gray-600 mb-3">コネクトハッカソン2025を開催します！</p>
+                            <div class="flex items-center text-sm text-gray-500">
+                                <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                </svg>
+                                <span>内山さん</span>
+                            </div>
+                        </div>
+                        <button class="ml-4 text-indigo-600 hover:text-indigo-800 font-medium text-sm whitespace-nowrap">
+                            詳細を見る →
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const searchInput = document.getElementById("search");
+        const searchHistoryDiv = document.getElementById("search-history");
+        const initialMessage = document.getElementById("initial-message");
+        const searchResults = document.getElementById("search-results");
+        const resultCount = document.getElementById("result-count");
+        
+        let searchHistory = JSON.parse(localStorage.getItem("searchHistory")) || [];
+
+        // ホーム画面に戻る関数
+        function goHome() {
+            searchInput.value = "";
+            initialMessage.classList.remove("hidden");
+            searchResults.classList.add("hidden");
+            searchHistoryDiv.classList.add("hidden");
+        }
+
+        // 検索履歴を表示する関数
+        function displaySearchHistory() {
+            searchHistoryDiv.innerHTML = "";
+            if (searchHistory.length === 0) {
+                searchHistoryDiv.classList.add("hidden");
+                return;
+            }
+            searchHistoryDiv.classList.remove("hidden");
+            searchHistory.forEach(item => {
+                const historyItem = document.createElement("div");
+                historyItem.classList.add("px-4", "py-2", "cursor-pointer", "hover:bg-gray-100");
+                historyItem.textContent = item;
+                historyItem.onclick = () => {
+                    searchInput.value = item;
+                    searchHistoryDiv.classList.add("hidden");
+                    performSearch(item);
+                };
+                searchHistoryDiv.appendChild(historyItem);
+            });
+        }
+
+        // 検索履歴を保存する関数
+        function saveSearchHistory(query) {
+            if (query && !searchHistory.includes(query)) {
+                searchHistory.unshift(query);
+                searchHistory = searchHistory.slice(0, 5);
+                localStorage.setItem("searchHistory", JSON.stringify(searchHistory));
+                displaySearchHistory();
+            }
+        }
+
+        // 検索を実行する関数
+        function performSearch(searchTerm) {
+            // 初期メッセージを非表示にして検索結果を表示
+            initialMessage.classList.add("hidden");
+            searchResults.classList.remove("hidden");
+            resultCount.textContent = "(2件)";
+            
+            // 実際のアプリケーションでは、ここでAPIを呼び出して検索結果を取得します
+            console.log(`「${searchTerm}」で検索しました`);
+        }
+
+        // ページロード時の処理
+        document.addEventListener("DOMContentLoaded", () => {
+            if (searchHistory.length > 0) {
+                searchInput.value = searchHistory[0];
+            }
+            displaySearchHistory();
+        });
+
+        // 検索入力欄にフォーカスされたときに履歴を表示
+        searchInput.addEventListener("focus", () => {
+            displaySearchHistory();
+        });
+
+        // 検索入力欄からフォーカスが外れたときに履歴を非表示
+        searchInput.addEventListener("blur", () => {
+            setTimeout(() => {
+                searchHistoryDiv.classList.add("hidden");
+            }, 200);
+        });
+
+        // 検索フォームの送信処理
+        function handleSearch(event) {
+            event.preventDefault();
+            const searchTerm = searchInput.value;
+            saveSearchHistory(searchTerm);
+            performSearch(searchTerm);
+        }
+    </script>
+</body>
+</html>
